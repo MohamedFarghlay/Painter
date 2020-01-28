@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QMenuBar,QMenu, QAction, QPushButton, QColorDialog
-from PyQt5.QtGui import QColor,QIcon,QImage, QPainter, QPen, QPixmap,QKeySequence
+from PyQt5.QtGui import  QCursor,QColor,QIcon,QImage, QPainter, QPen, QPixmap,QKeySequence
 from PyQt5 import QtGui,QtCore
 from PyQt5.QtCore import Qt, QPoint, QSize, QRect
+import random
 import sys
 
 class Window(QMainWindow):
@@ -13,10 +14,7 @@ class Window(QMainWindow):
         
         
         self.image = QImage(QSize(1800,1500),QImage.Format_RGB32)
-        self.backgroundColor = 'black'
-        self.image.fill(QColor(self.backgroundColor))
-        
-        # self.image.fill(QColor(str(self.backgroundColor)))
+        self.image.fill(Qt.black)
         
         #brush properties
         self.drawing=False
@@ -29,19 +27,17 @@ class Window(QMainWindow):
         #Main Menu bar 
         mainMenu = self.menuBar()
         fileMenu = mainMenu.addMenu("File")
-        brushSize = mainMenu.addMenu("Size")
+        brushSize = mainMenu.addMenu("Pen Size")
         
         #brush color  
         color = QAction("Pen Color",self)  
         color.triggered.connect(self.penColorPicker)
         mainMenu.addAction(color)
-        
-        #TODO        
-        #background color  
-        # Backcolor = QAction("Background Color",self)  
-        # Backcolor.triggered.connect(self.BackColorPicker)
-        # mainMenu.addAction(Backcolor)
-        
+       
+        #backgroundColor = mainMenu.addMenu("Background Color")
+        backgroundColor = QAction("Change Background",self)
+        backgroundColor.triggered.connect(self.BackgroundColorPicker)
+        mainMenu.addAction(backgroundColor)
         
         #Items of the file menu 
         #Save the Image
@@ -64,23 +60,23 @@ class Window(QMainWindow):
         #Items of the brush size menu 
         
         #increase brush size
-        increaseBrushSizeAction = QAction("increase",self)
-        increaseBrushSizeAction.triggered.connect(self.increaseBrushSize)
-        increaseBrushSizeAction.setShortcut(QKeySequence.ZoomIn)
-        brushSize.addAction(increaseBrushSizeAction)
+        self.increaseBrushSizeAction = QAction("increase",self)
+        self.increaseBrushSizeAction.triggered.connect(self.increaseBrushSize)
+        self.increaseBrushSizeAction.setShortcut(QKeySequence.ZoomIn)
+        brushSize.addAction(self.increaseBrushSizeAction)
         
         #decrease brush size
-        decreaseBrushSizeAction = QAction("decrease",self)
-        decreaseBrushSizeAction.triggered.connect(self.decreaseBrushSize)
-        decreaseBrushSizeAction.setShortcut(QKeySequence.ZoomOut)
-        brushSize.addAction(decreaseBrushSizeAction)
+        self.decreaseBrushSizeAction = QAction("decrease",self)
+        self.decreaseBrushSizeAction.triggered.connect(self.decreaseBrushSize)
+        self.decreaseBrushSizeAction.setShortcut(QKeySequence.ZoomOut)
+        brushSize.addAction(self.decreaseBrushSizeAction)
         
         #Reset brush size
         resetBrushSizeAction = QAction("reset",self)
         resetBrushSizeAction.triggered.connect(self.resetBrushSize)
         brushSize.addAction(resetBrushSizeAction)
- 
-        
+    
+
     #Pen color picker
     def penColorPicker(self): 
         color =QColorDialog.getColor()
@@ -88,9 +84,11 @@ class Window(QMainWindow):
     
     #Back color picker
     #TODO
-    def BackColorPicker(self): 
+    def BackgroundColorPicker(self): 
         colors = [Qt.black,Qt.white,Qt.red,Qt.yellow,Qt.cyan,Qt.gray,Qt.darkBlue,Qt.darkCyan,Qt.darkGray,Qt.darkGreen,Qt.darkMagenta,Qt.darkRed,Qt.darkYellow,Qt.magenta,Qt.lightGray,Qt.color0,Qt.color1,Qt.transparent]
-        self.image.fill(colors[3])
+        i = random.randint(0,len(colors)-1)
+        self.image.fill(colors[i])
+        self.update()
         
     #Mouse Press Event
     def mousePressEvent(self, event):
@@ -147,14 +145,14 @@ class Window(QMainWindow):
         
     #increase the size of the brush
     def increaseBrushSize(self):
-        self.brushSize *= 2
-        
-        
-    
+        if self.brushSize < 300:
+            self.brushSize *= 2
+           
     #decrease the size of the brush
     def decreaseBrushSize(self):
         if self.brushSize > .5 :
             self.brushSize /= 2;
+
         
     
     #Reset Brush size
